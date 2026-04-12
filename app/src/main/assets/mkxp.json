@@ -1,0 +1,17 @@
+{
+  "rgssVersion": 3,
+  "dataPathOrg": "mkxp-z",
+  "dataPathApp": "WarOfHarmonyIV",
+  "pathCache": true,
+  "smoothScaling": false,
+  "subImageFix": true,
+  "fontSub": [
+    "SimHei>WenQuanYi Micro Hei",
+    "Noto Sans SC>WenQuanYi Micro Hei",
+    "Arial>WenQuanYi Micro Hei",
+    "Verdana>WenQuanYi Micro Hei",
+    "VL Gothic>WenQuanYi Micro Hei",
+    "VL Gothic Regular>WenQuanYi Micro Hei",
+    "Courier>WenQuanYi Micro Hei"
+  ]
+}

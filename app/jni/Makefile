@@ -83,6 +83,7 @@ CLANG_FLAGS := -target $(TARGET) --gcc-toolchain $(TOOLCHAIN)
 # CMake arguments
 CMAKE_ARGS := \
 	-DCMAKE_TOOLCHAIN_FILE="$(NDK)/build/cmake/android.toolchain.cmake" \
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 	-DCMAKE_SYSTEM_NAME=Android \
 	-DCMAKE_SYSTEM_VERSION=$(API) \
 	-DANDROID_PLATFORM=$(API) \
@@ -123,6 +124,7 @@ RUBY_CONFIGURE_ARGS := \
 	--enable-shared \
 	--enable-static \
 	--enable-install-static-library \
+	--disable-jit-support \
 	--disable-install-doc \
 	--disable-rubygems \
 	--with-static-linked-ext \
@@ -161,10 +163,10 @@ openal/cmakebuild/Makefile: openal/CMakeLists.txt
 openssl: init $(LIBDIR)/libssl.a
 
 $(LIBDIR)/libssl.a: openssl/Makefile
-	cd openssl; make -j$(NPROC); make install_sw
+	cd openssl; PATH="$(TOOLCHAIN)/bin:$$PATH" make -j$(NPROC); PATH="$(TOOLCHAIN)/bin:$$PATH" make install_sw
 
 openssl/Makefile: openssl/Configure
-	cd openssl; CFLAGS="-Wno-macro-redefined" ./Configure $(OPENSSL_TARGET) \
+	cd openssl; PATH="$(TOOLCHAIN)/bin:$$PATH" $(CONFIGURE_ENV) CFLAGS="-Wno-macro-redefined $(CFLAGS)" ./Configure $(OPENSSL_TARGET) \
 	no-shared -D__ANDROID_API__=$(API) \
 	--prefix="$(BUILD_PREFIX)" --openssldir="$(BUILD_PREFIX)"
 
@@ -172,10 +174,10 @@ openssl/Makefile: openssl/Configure
 ruby: init openssl $(LIBDIR)/libruby.so.3.1.0
 
 $(LIBDIR)/libruby.so.3.1.0: ruby/Makefile
-	cd ruby; make -j$(NPROC); make install
+	cd ruby; PATH="$(TOOLCHAIN)/bin:$$PATH" $(MAKE) MAKEOVERRIDES= -j1; PATH="$(TOOLCHAIN)/bin:$$PATH" $(MAKE) MAKEOVERRIDES= install
 
 ruby/Makefile: ruby/configure
-	cd ruby; DLDFLAGS="-Wl,-soname,libruby.so" \
+	cd ruby; PATH="$(TOOLCHAIN)/bin:$$PATH" DLDFLAGS="-Wl,-soname,libruby.so" \
 	$(CONFIGURE) $(RUBY_CONFIGURE_ARGS)
 
 ruby/configure: ruby/configure.ac
@@ -195,7 +197,7 @@ clean-openssl:
 	-cd openssl; make clean; rm Makefile
 
 clean-ruby:
-	-cd ruby; make clean; rm Makefile; rm configure
+	-cd ruby; $(MAKE) MAKEOVERRIDES= clean; rm Makefile; rm configure
 
 clean: clean-iconv clean-openal clean-openssl clean-ruby
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.view.View;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -27,6 +28,9 @@ import android.util.Log;
 import android.util.DisplayMetrics;
 import java.util.Locale;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.libsdl.app.SDLActivity;
 import com.hatkid.mkxpz.gamepad.Gamepad;
@@ -42,6 +46,7 @@ public class MainActivity extends SDLActivity
     private static String GAME_PATH = GAME_PATH_DEFAULT;
     private static String OBB_MAIN_FILENAME;
     private static boolean DEBUG = false;
+    private static boolean BUNDLED_ASSET_MODE = false;
 
     protected boolean mStarted = false;
 
@@ -66,6 +71,41 @@ public class MainActivity extends SDLActivity
         // Run (resume) native SDL thread
         if (mHasMultiWindow) {
             resumeNativeThread();
+        }
+    }
+
+    private boolean hasBundledGameAssets()
+    {
+        try (InputStream ignored = getAssets().open("Game.ini")) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private void syncBundledBootstrapFiles()
+    {
+        copyAssetToInternalDir("Game.ini", true);
+        copyAssetToInternalDir("mkxp.json", false);
+    }
+
+    private void copyAssetToInternalDir(String assetName, boolean required)
+    {
+        AssetManager assetManager = getAssets();
+        File outFile = new File(getFilesDir(), assetName);
+
+        try (InputStream in = assetManager.open(assetName);
+             FileOutputStream out = new FileOutputStream(outFile, false)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            if (required) {
+                throw new RuntimeException("Failed to copy required asset " + assetName, e);
+            }
+            Log.v(TAG, "Optional bundled asset not found: " + assetName);
         }
     }
 
@@ -126,6 +166,13 @@ public class MainActivity extends SDLActivity
         final int obbVersion = 1;
         OBB_MAIN_FILENAME = getObbDir() + "/" + obbPrefix + "." + obbVersion + "." + getPackageName() + ".obb";
 
+        BUNDLED_ASSET_MODE = hasBundledGameAssets();
+        if (BUNDLED_ASSET_MODE) {
+            GAME_PATH = getFilesDir().getAbsolutePath();
+            syncBundledBootstrapFiles();
+            Log.i(TAG, "Bundled asset mode enabled");
+        }
+
         // Get Debug flag
         try {
             ActivityInfo actInfo = getPackageManager().getActivityInfo(this.getComponentName(), PackageManager.GET_META_DATA);
@@ -136,7 +183,7 @@ public class MainActivity extends SDLActivity
         }
 
         // Check for all files access permission (Android 11+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (!BUNDLED_ASSET_MODE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
                 // Request all files access permission
                 // TODO: AlertDialog: polite notice that mkxp-z requires All Files Access permission.
@@ -174,6 +221,11 @@ public class MainActivity extends SDLActivity
     protected void onStart()
     {
         super.onStart();
+
+        if (BUNDLED_ASSET_MODE) {
+            runSDLThread();
+            return;
+        }
 
         if (!mStarted) {
             // Check for main OBB file

@@ -1553,8 +1553,6 @@ void Bitmap::drawText(const IntRect &rect, const char *str, int align)
     
     p->ensureFormat(txtSurf, SDL_PIXELFORMAT_ABGR8888);
     
-    int rawTxtSurfH = txtSurf->h;
-    
     if (p->font->getShadow())
         applyShadow(txtSurf, *p->format, c);
     
@@ -1603,7 +1601,7 @@ void Bitmap::drawText(const IntRect &rect, const char *str, int align)
     if (alignX < rect.x)
         alignX = rect.x;
     
-    int alignY = rect.y + (rect.h - rawTxtSurfH) / 2;
+    int alignY = rect.y + (rect.h - txtSurf->h) / 2;
     
     float squeeze = (float) rect.w / txtSurf->w;
     
@@ -1795,6 +1793,18 @@ IntRect Bitmap::textSize(const char *str)
     
     int w, h;
     TTF_SizeUTF8(font, str, &w, &h);
+
+    if (p->font->getOutline())
+    {
+        w += OUTLINE_SIZE * 2;
+        h += OUTLINE_SIZE * 2;
+    }
+
+    if (p->font->getShadow())
+    {
+        w += 1;
+        h += 1;
+    }
     
     /* If str is one character long, *endPtr == 0 */
     const char *endPtr;

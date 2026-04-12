@@ -51,8 +51,8 @@
 #endif
 
 #define BUNDLED_FONT_DECL(FONT) \
-	extern unsigned char assets_##FONT##_ttf[]; \
-	extern unsigned int assets_##FONT##_ttf_len;
+	extern const unsigned char assets_##FONT##_ttf[]; \
+	extern const unsigned int assets_##FONT##_ttf_len;
 
 BUNDLED_FONT_DECL(liberation)
 
