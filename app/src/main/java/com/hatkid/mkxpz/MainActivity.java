@@ -47,6 +47,11 @@ public class MainActivity extends SDLActivity
     private static String OBB_MAIN_FILENAME;
     private static boolean DEBUG = false;
     private static boolean BUNDLED_ASSET_MODE = false;
+private static boolean sCheatInvincible = false;
+    private static boolean sCheatInfiniteMp = false;
+    private static boolean sCheatInfiniteSearch = false;
+    private static boolean sCheatOneHitKill = false;
+    private static int sPendingGoldDelta = 0;
 
     protected boolean mStarted = false;
 
@@ -58,6 +63,7 @@ public class MainActivity extends SDLActivity
 
     // In-screen gamepad
     private final Gamepad mGamepad = new Gamepad();
+    private final CheatOverlay mCheatOverlay = new CheatOverlay();
     private boolean mGamepadInvisible = false;
 
     private void runSDLThread()
@@ -83,10 +89,11 @@ public class MainActivity extends SDLActivity
         }
     }
 
-    private void syncBundledBootstrapFiles()
+private void syncBundledBootstrapFiles()
     {
         copyAssetToInternalDir("Game.ini", true);
         copyAssetToInternalDir("mkxp.json", false);
+        copyAssetToInternalDir("cheat.rb", false);
     }
 
     private void copyAssetToInternalDir(String assetName, boolean required)
@@ -215,6 +222,7 @@ public class MainActivity extends SDLActivity
         tvFps.setLayoutParams(params);
 
         mLayout.addView(tvFps);
+        mCheatOverlay.attachTo(this, mLayout);
     }
 
     @Override
@@ -414,5 +422,63 @@ public class MainActivity extends SDLActivity
     private static boolean inMultiWindow(Activity activity)
     {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && activity.isInMultiWindowMode();
+    }
+
+    public static synchronized boolean cheatInvincibleEnabled()
+    {
+        return sCheatInvincible;
+    }
+
+public static synchronized boolean cheatInfiniteMpEnabled()
+    {
+        return sCheatInfiniteMp;
+    }
+
+    public static synchronized boolean cheatInfiniteSearchEnabled()
+    {
+        return sCheatInfiniteSearch;
+    }
+
+    public static synchronized boolean cheatOneHitKillEnabled()
+    {
+        return sCheatOneHitKill;
+    }
+
+    public static synchronized int consumePendingGold()
+    {
+        int delta = sPendingGoldDelta;
+        sPendingGoldDelta = 0;
+        return delta;
+    }
+
+    static synchronized void setCheatInvincibleEnabled(boolean enabled)
+    {
+        sCheatInvincible = enabled;
+    }
+
+static synchronized void setCheatInfiniteMpEnabled(boolean enabled)
+    {
+        sCheatInfiniteMp = enabled;
+    }
+
+    static synchronized void setCheatInfiniteSearchEnabled(boolean enabled)
+    {
+        sCheatInfiniteSearch = enabled;
+    }
+
+    static synchronized void setCheatOneHitKillEnabled(boolean enabled)
+    {
+        sCheatOneHitKill = enabled;
+    }
+
+    static synchronized void queueCheatGold(int delta)
+    {
+        long nextValue = (long) sPendingGoldDelta + delta;
+        if (nextValue > 99_999_999L) {
+            nextValue = 99_999_999L;
+        } else if (nextValue < -99_999_999L) {
+            nextValue = -99_999_999L;
+        }
+        sPendingGoldDelta = (int) nextValue;
     }
 }

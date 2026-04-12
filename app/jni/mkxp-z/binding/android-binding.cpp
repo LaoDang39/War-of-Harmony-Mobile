@@ -152,6 +152,96 @@ RB_METHOD(androidInMultiWindow)
 	return rb_bool_new(winMode);
 }
 
+RB_METHOD(androidCheatInvincible)
+{
+	RB_UNUSED_PARAM;
+
+	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+	jclass cls = env->GetObjectClass(activity);
+
+	jmethodID mID = env->GetStaticMethodID(cls, "cheatInvincibleEnabled", "()Z");
+	SDL_assert(mID != 0);
+	jboolean enabled = (jboolean)env->CallStaticBooleanMethod(cls, mID);
+
+	env->DeleteLocalRef(cls);
+	env->DeleteLocalRef(activity);
+
+	return rb_bool_new(enabled);
+}
+
+RB_METHOD(androidCheatInfiniteMp)
+{
+	RB_UNUSED_PARAM;
+
+	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+	jclass cls = env->GetObjectClass(activity);
+
+	jmethodID mID = env->GetStaticMethodID(cls, "cheatInfiniteMpEnabled", "()Z");
+	SDL_assert(mID != 0);
+	jboolean enabled = (jboolean)env->CallStaticBooleanMethod(cls, mID);
+
+	env->DeleteLocalRef(cls);
+	env->DeleteLocalRef(activity);
+
+	return rb_bool_new(enabled);
+}
+
+RB_METHOD(androidCheatInfiniteSearch)
+{
+	RB_UNUSED_PARAM;
+
+	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+	jclass cls = env->GetObjectClass(activity);
+
+	jmethodID mID = env->GetStaticMethodID(cls, "cheatInfiniteSearchEnabled", "()Z");
+	SDL_assert(mID != 0);
+	jboolean enabled = (jboolean)env->CallStaticBooleanMethod(cls, mID);
+
+	env->DeleteLocalRef(cls);
+	env->DeleteLocalRef(activity);
+
+	return rb_bool_new(enabled);
+}
+
+RB_METHOD(androidCheatOneHitKill)
+{
+	RB_UNUSED_PARAM;
+
+	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+	jclass cls = env->GetObjectClass(activity);
+
+	jmethodID mID = env->GetStaticMethodID(cls, "cheatOneHitKillEnabled", "()Z");
+	SDL_assert(mID != 0);
+	jboolean enabled = (jboolean)env->CallStaticBooleanMethod(cls, mID);
+
+	env->DeleteLocalRef(cls);
+	env->DeleteLocalRef(activity);
+
+	return rb_bool_new(enabled);
+}
+
+RB_METHOD(androidConsumePendingGold)
+{
+	RB_UNUSED_PARAM;
+
+	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+	jobject activity = (jobject)SDL_AndroidGetActivity();
+	jclass cls = env->GetObjectClass(activity);
+
+	jmethodID mID = env->GetStaticMethodID(cls, "consumePendingGold", "()I");
+	SDL_assert(mID != 0);
+	jint delta = (jint)env->CallStaticIntMethod(cls, mID);
+
+	env->DeleteLocalRef(cls);
+	env->DeleteLocalRef(activity);
+
+	return INT2NUM(delta);
+}
+
 void androidBindingInit()
 {
 	VALUE module = rb_define_module("Android");
@@ -171,4 +261,11 @@ void androidBindingInit()
 
 	// Multi-window (Android 7.0+)
 	_rb_define_module_function(module, "in_multiwindow?", androidInMultiWindow);
+
+	// Runtime cheat overlay
+_rb_define_module_function(module, "cheat_invincible?", androidCheatInvincible);
+	_rb_define_module_function(module, "cheat_infinite_mp?", androidCheatInfiniteMp);
+	_rb_define_module_function(module, "cheat_infinite_search?", androidCheatInfiniteSearch);
+	_rb_define_module_function(module, "cheat_one_hit_kill?", androidCheatOneHitKill);
+	_rb_define_module_function(module, "consume_pending_gold", androidConsumePendingGold);
 }

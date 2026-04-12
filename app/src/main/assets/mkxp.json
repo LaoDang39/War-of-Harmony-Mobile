@@ -5,6 +5,7 @@
   "pathCache": true,
   "smoothScaling": false,
   "subImageFix": true,
+  "preloadScript": ["cheat.rb"],
   "fontSub": [
     "SimHei>WenQuanYi Micro Hei",
     "Noto Sans SC>WenQuanYi Micro Hei",
