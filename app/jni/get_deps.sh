@@ -30,6 +30,18 @@ clone_repo() {
   return 1
 }
 
+extract_archive() {
+  local archive_name="$1"
+  case "$archive_name" in
+    *.tar.gz|*.tgz) tar -xzf "$archive_name" ;;
+    *.tar.xz) tar -xJf "$archive_name" ;;
+    *)
+      echo "[error] Unsupported archive format: $archive_name" >&2
+      return 1
+      ;;
+  esac
+}
+
 download_tarball() {
   local dir="$1"
   local archive_name="$2"
@@ -46,7 +58,7 @@ download_tarball() {
     echo "Downloading $dir from $url..."
     rm -f "$archive_name"
     if wget -q --https-only --show-progress -O "$archive_name" "$url"; then
-      tar -xzf "$archive_name"
+      extract_archive "$archive_name"
       mv "$extract_dir" "$dir"
       rm -f "$archive_name"
       return 0
@@ -126,10 +138,7 @@ clone_repo openssl OpenSSL_1_1_1t \
   https://github.com/openssl/openssl
 
 # Ruby 3.1.0 (patched for mkxp-z)
-# 注：mkxp-z/ruby 若无法访问，可改用官方 Ruby 源（需将 tag 改为 v3_1_0）：
-#   clone_repo ruby v3_1_0 https://github.com/ruby/ruby
 clone_repo ruby mkxp-z-3.1 \
-  https://github.com/mkxp-z/ruby \
-  https://github.com/ruby/ruby
+  https://github.com/mkxp-z/ruby
 
 echo "Done!"
