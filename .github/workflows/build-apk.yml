@@ -59,6 +59,18 @@ jobs:
         working-directory: app/jni
         run: ./get_deps.sh
 
+      - name: Build JNI prerequisite libraries (arm64-v8a)
+        working-directory: app/jni
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/25.2.9519653
+        run: |
+          make \
+            HOST=aarch64-linux-android \
+            TARGET=aarch64-linux-android \
+            ABI=arm64-v8a \
+            API=21 \
+            all
+
       - name: Build release APK
         run: ./gradlew --no-daemon clean assembleRelease
 
