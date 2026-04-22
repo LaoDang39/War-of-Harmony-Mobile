@@ -30,18 +30,6 @@ clone_repo() {
   return 1
 }
 
-extract_archive() {
-  local archive_name="$1"
-  case "$archive_name" in
-    *.tar.gz|*.tgz) tar -xzf "$archive_name" ;;
-    *.tar.xz) tar -xJf "$archive_name" ;;
-    *)
-      echo "[error] Unsupported archive format: $archive_name" >&2
-      return 1
-      ;;
-  esac
-}
-
 download_tarball() {
   local dir="$1"
   local archive_name="$2"
@@ -58,7 +46,7 @@ download_tarball() {
     echo "Downloading $dir from $url..."
     rm -f "$archive_name"
     if wget -q --https-only --show-progress -O "$archive_name" "$url"; then
-      extract_archive "$archive_name"
+      tar -xzf "$archive_name"
       mv "$extract_dir" "$dir"
       rm -f "$archive_name"
       return 0
@@ -90,9 +78,8 @@ download_tarball libiconv libiconv-1.17.tar.gz libiconv-1.17 \
   https://mirrors.kernel.org/gnu/libiconv/libiconv-1.17.tar.gz
 
 # Freedesktop uchardet
-download_tarball uchardet uchardet-0.0.8.tar.xz uchardet-0.0.8 \
-  https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz \
-  https://distfiles.alpinelinux.org/distfiles/edge/uchardet-0.0.8.tar.xz
+clone_repo uchardet v0.0.8 \
+  https://github.com/freedesktop/uchardet
 
 # Freedesktop Pixman
 clone_repo pixman pixman-0.42.2 \
