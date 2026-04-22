@@ -77,13 +77,15 @@ download_tarball libiconv libiconv-1.17.tar.gz libiconv-1.17 \
   https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz \
   https://mirrors.kernel.org/gnu/libiconv/libiconv-1.17.tar.gz
 
-# Freedesktop uchardet
+# Freedesktop uchardet (FIXED: GitHub 不存在，换为 GitLab 官方源)
 clone_repo uchardet v0.0.8 \
-  https://github.com/freedesktop/uchardet
+  https://gitlab.freedesktop.org/uchardet/uchardet \
+  https://github.com/oe-mirrors/uchardet
 
-# Freedesktop Pixman
+# Freedesktop Pixman (FIXED: GitHub 不存在，换为 GitLab 官方源)
 clone_repo pixman pixman-0.42.2 \
-  https://github.com/freedesktop/pixman
+  https://gitlab.freedesktop.org/pixman/pixman \
+  https://github.com/libpixman/pixman
 
 # PhysicsFS
 clone_repo physfs release-3.2.0 \
@@ -124,7 +126,10 @@ clone_repo openssl OpenSSL_1_1_1t \
   https://github.com/openssl/openssl
 
 # Ruby 3.1.0 (patched for mkxp-z)
+# 注：mkxp-z/ruby 若无法访问，可改用官方 Ruby 源（需将 tag 改为 v3_1_0）：
+#   clone_repo ruby v3_1_0 https://github.com/ruby/ruby
 clone_repo ruby mkxp-z-3.1 \
-  https://github.com/mkxp-z/ruby
+  https://github.com/mkxp-z/ruby \
+  https://github.com/ruby/ruby
 
 echo "Done!"
