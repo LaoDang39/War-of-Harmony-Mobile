@@ -89,14 +89,15 @@ download_tarball libiconv libiconv-1.17.tar.gz libiconv-1.17 \
   https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz \
   https://mirrors.kernel.org/gnu/libiconv/libiconv-1.17.tar.gz
 
-# Freedesktop uchardet
-download_tarball uchardet uchardet-0.0.8.tar.xz uchardet-0.0.8 \
-  https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz \
-  https://distfiles.alpinelinux.org/distfiles/edge/uchardet-0.0.8.tar.xz
+# Freedesktop uchardet (FIXED: GitHub 不存在，换为 GitLab 官方源)
+clone_repo uchardet v0.0.8 \
+  https://gitlab.freedesktop.org/uchardet/uchardet \
+  https://github.com/oe-mirrors/uchardet
 
-# Freedesktop Pixman
+# Freedesktop Pixman (FIXED: GitHub 不存在，换为 GitLab 官方源)
 clone_repo pixman pixman-0.42.2 \
-  https://github.com/freedesktop/pixman
+  https://gitlab.freedesktop.org/pixman/pixman \
+  https://github.com/libpixman/pixman
 
 # PhysicsFS
 clone_repo physfs release-3.2.0 \
